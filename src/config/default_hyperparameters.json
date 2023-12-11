@@ -1,0 +1,18 @@
+{
+  "history_forecast_ratio": 10,
+  "lags_forecast_ratio": 3,
+  "hidden_size": 16,
+  "lstm_layers": 1,
+  "num_attention_heads": 3,
+  "full_attention": false,
+  "feed_forward": "GatedResidualNetwork",
+  "add_relative_index": true,
+  "dropout": 0.0,
+  "n_epochs": 150,
+  "batch_size": 16,
+  "force_reset": true,
+  "save_checkpoints": true,
+  "optimizer_kwargs": {"lr": 1e-3},
+  "use_exogenous": true,
+  "random_state": 0
+}
