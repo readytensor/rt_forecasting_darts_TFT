@@ -10,6 +10,7 @@ from schema.data_schema import ForecastingSchema
 from sklearn.exceptions import NotFittedError
 from torch import cuda
 from sklearn.preprocessing import MinMaxScaler
+from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 
 
 warnings.filterwarnings("ignore")
@@ -156,11 +157,18 @@ class Forecaster:
             self.history_length = kwargs["history_length"]
             kwargs.pop("history_length")
 
-        pl_trainer_kwargs = None
+        stopper = EarlyStopping(
+            monitor="train_loss",
+            patience=100,
+            min_delta=0.0005,
+            mode="min",
+        )
+
+        pl_trainer_kwargs = {"callbacks": [stopper]}
+
+        # pl_trainer_kwargs = {}
         if cuda.is_available():
-            pl_trainer_kwargs = {
-                "accelerator": "gpu",
-            }
+            pl_trainer_kwargs["accelerator"] = "gpu"
             print("GPU training is available.")
         else:
             print("GPU training not available.")
