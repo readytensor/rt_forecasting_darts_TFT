@@ -9,7 +9,7 @@ The following are the requirements for using your data with this model:
 
 - The data must be in CSV format.
 - The schema file must contain an idField and timeField columns.
-- The timeField data type must be either "DATE" or "INT".
+- The timeField data type must be either "DATE", "DATETIME" or "INT".
 - The data type of the target field, past covariates and future covariates must be NUMERIC.
 - The train and test (or prediction) files must contain an ID field. The train data must also contain a target series.
 - The data need to be preprocessed because the implementation assumes the data is cleaned and has no missing values.
