@@ -19,7 +19,6 @@ The following are the requirements for using your data with this model:
 Here are the highlights of this implementation: <br/>
 
 - A **TFT Forecaster** algorithm built using **Darts**
-- Hyperparameter-tuning using **Optuna**
   Additionally, the implementation contains the following features:
 - **Data Validation**: Pydantic data validation is used for the schema, training and test files, as well as the inference request data.
 - **Error handling and logging**: Python's logging module is used for logging and key functions include exception handling.
@@ -32,15 +31,14 @@ The following is the directory structure of the project:
 - **`model_inputs_outputs/`**: This directory contains files that are either inputs to, or outputs from, the model. When running the model locally (i.e. without using docker), this directory is used for model inputs and outputs. This directory is further divided into:
   - **`/inputs/`**: This directory contains all the input files for this project, including the `data` and `schema` files. The `data` is further divided into `testing` and `training` subsets.
   - **`/model/artifacts/`**: This directory is used to store the model artifacts, such as trained models and their parameters.
-  - **`/outputs/`**: The outputs directory contains sub-directories for error logs, and hyperparameter tuning outputs, and prediction results.
+  - **`/outputs/`**: The outputs directory contains sub-directories for error logs and prediction results.
 - **`src/`**: This directory holds the source code for the project. It is further divided into various subdirectories:
-  - **`config/`**: for configuration files for data preprocessing, model hyperparameters, hyperparameter tuning-configuration specs, paths, etc.
+  - **`config/`**: for configuration files for data preprocessing, model hyperparameters, paths, etc.
   - **`data_models/`**: for data models for input validation including the schema, training and test files. It also contains the data model for the batch prediction results.
   - **`schema/`**: for schema handler script. This script contains the class that provides helper getters/methods for the data schema.
   - **`prediction/`**: Scripts for the Bagging classifier model implemented using **Scikit-Learn** library.
-  - **`hyperparameter_tuning/`**: for hyperparameter-tuning (HPT) functionality implemented using **Optuna** for the model.
   - **`logger.py`**: This script contains the logger configuration using **logging** module.
-  - **`train.py`**: This script is used to train the model. It loads the data, preprocesses it, trains the model, and saves the artifacts in the path `./model_inputs_outputs/model/artifacts/`. It also saves a SHAP explainer object in the path `./model/artifacts/`. When the train task is run with a flag to perform hyperparameter tuning, it also saves the hyperparameter tuning results in the path `./model_inputs_outputs/outputs/hpt_outputs/`.
+  - **`train.py`**: This script is used to train the model. It loads the data, preprocesses it, trains the model, and saves the artifacts in the path `./model_inputs_outputs/model/artifacts/`.
   - **`predict.py`**: This script is used to run batch predictions using the trained model. It loads the artifacts and creates and saves the predictions in a file called `predictions.csv` in the path `./model_inputs_outputs/outputs/predictions/`.
   - **`utils.py`**: This script contains utility functions used by the other scripts.
 - **`.gitignore`**: This file specifies the files and folders that should be ignored by Git.
@@ -66,7 +64,7 @@ In this section we cover the following:
 
 - Create your virtual environment and install dependencies listed in `requirements.txt` which is inside the `root` directory.
 - Move the three example files (`smoke_test_forecasting_schema.json`, `smoke_test_forecasting_train.csv` and `smoke_test_forecasting_test.csv`) in the `examples` directory into the `./model_inputs_outputs/inputs/schema`, `./model_inputs_outputs/inputs/data/training` and `./model_inputs_outputs/inputs/data/testing` folders, respectively (or alternatively, place your custom dataset files in the same locations).
-- Run the script `src/train.py` to train the random forest classifier model. This will save the model artifacts, including the preprocessing pipeline and label encoder, in the path `./model_inputs_outputs/model/artifacts/`. If you want to run with hyperparameter tuning then include the `-t` flag. This will also save the hyperparameter tuning results in the path `./model_inputs_outputs/outputs/hpt_outputs/`.
+- Run the script `src/train.py` to train the random forest classifier model. This will save the model artifacts, including the preprocessing pipeline and label encoder, in the path `./model_inputs_outputs/model/artifacts/`.
 - Run the script `src/predict.py` to run batch predictions using the trained model. This script will load the artifacts and create and save the predictions in a file called `predictions.csv` in the path `./model_inputs_outputs/outputs/predictions/`.
 
 ### To run with Docker
@@ -83,13 +81,10 @@ In this section we cover the following:
    - Container runs as user 1000. Provide appropriate read-write permissions to user 1000 for the bind mount. Please follow the principle of least privilege when setting permissions. The following permissions are required:
      - Read access to the `inputs` directory in the bind mount. Write or execute access is not required.
      - Read-write access to the `outputs` directory and `model` directories. Execute access is not required.
-4. You can run training with or without hyperparameter tuning:
-   - To run training without hyperparameter tuning (i.e. using default hyperparameters), run the container with the following command container: <br/>
+4. Run training:
+   - To run training, run the container with the following command container: <br/>
      `docker run -v <path_to_mount_on_host>/model_inputs_outputs:/opt/model_inputs_outputs forecaster_img train` <br/>
      where `forecaster_img` is the name of the container. This will train the model and save the artifacts in the `model_inputs_outputs/model/artifacts` directory in the bind mount.
-   - To run training with hyperparameter tuning, issue the command: <br/>
-     `docker run -v <path_to_mount_on_host>/model_inputs_outputs:/opt/model_inputs_outputs forecaster_img train -t` <br/>
-     This will tune hyperparameters,and used the tuned hyperparameters to train the model and save the artifacts in the `model_inputs_outputs/model/artifacts` directory in the bind mount. It will also save the hyperparameter tuning results in the `model_inputs_outputs/outputs/hpt_outputs` directory in the bind mount.
 5. To run batch predictions, place the prediction data file in the `model_inputs_outputs/inputs/data/testing` directory in the bind mount. Then issue the command: <br/>
    `docker run -v <path_to_mount_on_host>/model_inputs_outputs:/opt/model_inputs_outputs forecaster_img predict` <br/>
    This will load the artifacts and create and save the predictions in a file called `predictions.csv` in the path `model_inputs_outputs/outputs/predictions/` in the bind mount.
