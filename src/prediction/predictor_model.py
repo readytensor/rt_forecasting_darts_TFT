@@ -32,8 +32,10 @@ class Forecaster:
     def __init__(
         self,
         data_schema: ForecastingSchema,
-        input_chunk_length: int,
-        output_chunk_length: int,
+        input_chunk_length: int = None,
+        output_chunk_length: int = None,
+        history_forecast_ratio: int = None,
+        lags_forecast_ratio: int = None,
         hidden_size: Union[int, List[int]] = 16,
         lstm_layers: int = 1,
         num_attention_heads: int = 4,
@@ -58,6 +60,8 @@ class Forecaster:
                 Number of time steps in the past to take as a model input (per chunk).
                 Applies to the target series, and past and/or future covariates (if the model supports it).
 
+                Note: If this parameter is not specified, lags_forecast_ratio has to be specified.
+
             output_chunk_length (int):
                 Number of time steps predicted at once (per chunk) by the internal model.
                 Also, the number of future values from future covariates to use as a model input (if the model supports future covariates).
@@ -67,6 +71,19 @@ class Forecaster:
                 This is useful when the covariates don't extend far enough into the future,
                 or to prohibit the model from using future values of past and / or future covariates for prediction
                 (depending on the model's covariate support).
+
+                Note: If this parameter is not specified, lags_forecast_ratio has to be specified.
+
+
+            history_forecast_ratio (int):
+                Sets the history length depending on the forecast horizon.
+                For example, if the forecast horizon is 20 and the history_forecast_ratio is 10,
+                history length will be 20*10 = 200 samples.
+
+            lags_forecast_ratio (int):
+                Sets the input_chunk_length and output_chunk_length parameters depending on the forecast horizon.
+                input_chunk_length = forecast horizon * lags_forecast_ratio
+                output_chunk_length = forecast horizon
 
             hidden_size (Union[int, List[int]]):
                 Hidden state size of the TFT. It is the main hyper-parameter and common across the internal TFT architecture.
@@ -145,17 +162,17 @@ class Forecaster:
         self.random_state = random_state
         self.kwargs = kwargs
         self._is_trained = False
-
-        if not data_schema.past_covariates:
-            self.lags_past_covariates = None
-
-        if not data_schema.future_covariates:
-            self.lags_future_covariates = None
-
         self.history_length = None
-        if kwargs.get("history_length"):
-            self.history_length = kwargs["history_length"]
-            kwargs.pop("history_length")
+
+        if history_forecast_ratio:
+            self.history_length = (
+                self.data_schema.forecast_length * history_forecast_ratio
+            )
+
+        if lags_forecast_ratio:
+            lags = self.data_schema.forecast_length * lags_forecast_ratio
+            self.input_chunk_length = lags
+            self.output_chunk_length = self.data_schema.forecast_length
 
         stopper = EarlyStopping(
             monitor="train_loss",
