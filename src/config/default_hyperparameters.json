@@ -2,7 +2,7 @@
   "history_forecast_ratio": 10,
   "lags_forecast_ratio": 3,
   "hidden_size": 32,
-  "lstm_layers":2,
+  "lstm_layers": 2,
   "num_attention_heads": 2,
   "full_attention": true,
   "feed_forward": "GatedResidualNetwork",
