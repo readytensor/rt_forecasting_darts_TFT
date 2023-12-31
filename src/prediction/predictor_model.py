@@ -48,6 +48,9 @@ class Forecaster:
         ] = None,
         add_relative_index: bool = False,
         use_static_covariates: bool = False,
+        early_stopping: bool = True,
+        early_stopping_patience: int = 20,
+        min_delta: float = 0.01,
         optimizer_kwargs: Optional[dict] = None,
         use_exogenous: bool = True,
         random_state: int = 0,
@@ -135,6 +138,12 @@ class Forecaster:
                 Optionally, some keyword arguments for the PyTorch optimizer (e.g., {'lr': 1e-3} for specifying a learning rate).
                 Otherwise the default values of the selected optimizer_cls will be used. Default: None.
 
+            early_stopping (bool): If true, use early stopping.
+
+            early_stopping_patience (int): Patience used by early stopper.
+
+            min_delta (float): Minimum imporovement required by early stopper.
+
             random_state (int):
                 Sets the underlying random seed at model initialization time.
 
@@ -176,12 +185,14 @@ class Forecaster:
 
         stopper = EarlyStopping(
             monitor="train_loss",
-            patience=20,
-            min_delta=0.0005,
+            patience=early_stopping_patience,
+            min_delta=min_delta,
             mode="min",
         )
 
-        pl_trainer_kwargs = {"callbacks": [stopper]}
+        pl_trainer_kwargs = {}
+        if early_stopping:
+            pl_trainer_kwargs["callbacks"] = [stopper]
 
         if cuda.is_available():
             pl_trainer_kwargs["accelerator"] = "gpu"
