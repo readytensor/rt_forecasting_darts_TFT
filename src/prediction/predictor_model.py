@@ -150,11 +150,6 @@ class Forecaster:
             use_exogenous (bool):
                 Indicated if past covariates are used or not.
 
-            use_static_covariates (bool):
-                Whether the model should use static covariate information in case the input series passed to fit() contain static covariates.
-                If True, and static covariates are available at fitting time,
-                will enforce that all target series have the same static covariate dimensionality in fit() and predict().
-
             **kwargs:
                 Optional arguments to initialize the pytorch_lightning.Module, pytorch_lightning.Trainer, and Darts' TorchForecastingModel.
         """
