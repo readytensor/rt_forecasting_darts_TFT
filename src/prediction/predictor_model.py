@@ -52,7 +52,8 @@ class Forecaster:
         early_stopping_patience: int = 20,
         min_delta: float = 0.01,
         optimizer_kwargs: Optional[dict] = None,
-        use_exogenous: bool = True,
+        use_past_covariates: bool = True,
+        use_future_covariates: bool = True,
         random_state: int = 0,
         **kwargs,
     ):
@@ -147,8 +148,11 @@ class Forecaster:
             random_state (int):
                 Sets the underlying random seed at model initialization time.
 
-            use_exogenous (bool):
-                Indicated if past covariates are used or not.
+            use_past_covariates (bool):
+                Whether the model should use past covariates if available.
+
+            use_future_covariates (bool):
+                Whether the model should use future covariates if available.
 
             **kwargs:
                 Optional arguments to initialize the pytorch_lightning.Module, pytorch_lightning.Trainer, and Darts' TorchForecastingModel.
@@ -167,7 +171,18 @@ class Forecaster:
         self.add_relative_index = add_relative_index
         self.use_static_covariates = use_static_covariates
         self.optimizer_kwargs = optimizer_kwargs
-        self.use_exogenous = use_exogenous
+
+        self.use_past_covariates = (
+            use_past_covariates and len(data_schema.past_covariates) > 0
+        )
+        self.use_future_covariates = use_future_covariates and (
+            len(data_schema.future_covariates) > 0
+            or self.data_schema.time_col_dtype in ["DATE", "DATETIME"]
+        )
+        self.use_static_covariates = (
+            use_static_covariates and len(data_schema.static_covariates) > 0
+        )
+
         self.random_state = random_state
         self.kwargs = kwargs
         self._is_trained = False
@@ -181,6 +196,8 @@ class Forecaster:
         if lags_forecast_ratio:
             lags = self.data_schema.forecast_length * lags_forecast_ratio
             self.input_chunk_length = lags
+
+        if not self.output_chunk_length:
             self.output_chunk_length = self.data_schema.forecast_length
 
         stopper = EarlyStopping(
@@ -232,7 +249,6 @@ class Forecaster:
             history (pd.DataFrame): The provided training data.
             data_schema (ForecastingSchema): The schema of the training data.
 
-
         Returns:
             Tuple[List, List, List]: Target, Past covariates and Future covariates.
         """
@@ -276,7 +292,7 @@ class Forecaster:
 
             scalers[index] = scaler
             static_covariates = None
-            if self.use_exogenous and self.data_schema.static_covariates:
+            if self.use_static_covariates and self.data_schema.static_covariates:
                 static_covariates = s[self.data_schema.static_covariates]
 
             target = TimeSeries.from_dataframe(
@@ -330,9 +346,9 @@ class Forecaster:
 
         self.scalers = scalers
         self.future_scalers = future_scalers
-        if not past or not self.use_exogenous:
+        if not past or not self.use_past_covariates:
             past = None
-        if not future or not self.use_exogenous:
+        if not future or not self.use_future_covariates:
             future = None
 
         return targets, past, future
@@ -392,7 +408,7 @@ class Forecaster:
                 )
                 future.append(future_covariates)
 
-        if not future or not self.use_exogenous:
+        if not future or not self.use_future_covariates:
             future = None
         else:
             for index, (train_covariates, test_covariates) in enumerate(
