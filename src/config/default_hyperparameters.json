@@ -1,7 +1,7 @@
 {
   "history_forecast_ratio": 10,
   "lags_forecast_ratio": 3,
-  "output_chunk_length": 1,
+  "output_chunk_length": null,
   "hidden_size": 32,
   "lstm_layers": 2,
   "num_attention_heads": 2,
@@ -17,7 +17,7 @@
   "force_reset": true,
   "save_checkpoints": true,
   "optimizer_kwargs": {"lr": 1e-3},
-  "use_past_covariates": false,
+  "use_past_covariates": true,
   "use_future_covariates": true,
   "use_static_covariates": true,
   "random_state": 0
