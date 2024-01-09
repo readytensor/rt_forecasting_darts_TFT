@@ -13,7 +13,7 @@
   "batch_size": 32,
   "early_stopping": true,
   "early_stopping_patience": 20,
-  "min_delta": 0.005,
+  "min_delta": 0.0005,
   "force_reset": true,
   "save_checkpoints": true,
   "optimizer_kwargs": {"lr": 1e-3},
