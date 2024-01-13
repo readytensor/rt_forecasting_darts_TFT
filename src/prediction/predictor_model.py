@@ -257,18 +257,18 @@ class Forecaster:
         future = []
 
         future_covariates_names = data_schema.future_covariates
-        # if data_schema.time_col_dtype in ["DATE", "DATETIME"]:
-        #     date_col = pd.to_datetime(history[data_schema.time_col])
-        #     year_col = date_col.dt.year
-        #     month_col = date_col.dt.month
-        #     year_col_name = f"{data_schema.time_col}_year"
-        #     month_col_name = f"{data_schema.time_col}_month"
-        #     history[year_col_name] = year_col
-        #     history[month_col_name] = month_col
-        #     future_covariates_names += [year_col_name, month_col_name]
+        if data_schema.time_col_dtype in ["DATE", "DATETIME"]:
+            date_col = pd.to_datetime(history[data_schema.time_col])
+            year_col = date_col.dt.year
+            month_col = date_col.dt.month
+            year_col_name = f"{data_schema.time_col}_year"
+            month_col_name = f"{data_schema.time_col}_month"
+            history[year_col_name] = year_col
+            history[month_col_name] = month_col
+            future_covariates_names += [year_col_name, month_col_name]
 
-        #     year_col = date_col.dt.year
-        #     month_col = date_col.dt.month
+            year_col = date_col.dt.year
+            month_col = date_col.dt.month
 
         groups_by_ids = history.groupby(data_schema.id_col)
         all_ids = list(groups_by_ids.groups.keys())
@@ -369,16 +369,16 @@ class Forecaster:
         future = []
         data_schema = self.data_schema
         future_covariates_names = data_schema.future_covariates
-        # if data_schema.time_col_dtype in ["DATE", "DATETIME"]:
-        #     date_col = pd.to_datetime(data[data_schema.time_col])
-        #     year_col = date_col.dt.year
-        #     month_col = date_col.dt.month
-        #     year_col_name = f"{data_schema.time_col}_year"
-        #     month_col_name = f"{data_schema.time_col}_month"
-        #     data[year_col_name] = year_col
-        #     data[month_col_name] = month_col
-        #     year_col = date_col.dt.year
-        #     month_col = date_col.dt.month
+        if data_schema.time_col_dtype in ["DATE", "DATETIME"]:
+            date_col = pd.to_datetime(data[data_schema.time_col])
+            year_col = date_col.dt.year
+            month_col = date_col.dt.month
+            year_col_name = f"{data_schema.time_col}_year"
+            month_col_name = f"{data_schema.time_col}_month"
+            data[year_col_name] = year_col
+            data[month_col_name] = month_col
+            year_col = date_col.dt.year
+            month_col = date_col.dt.month
 
         groups_by_ids = data.groupby(data_schema.id_col)
         all_ids = list(groups_by_ids.groups.keys())

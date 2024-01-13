@@ -1,9 +1,9 @@
 {
   "history_forecast_ratio": 10,
-  "lags_forecast_ratio": 3,
-  "output_chunk_length": null,
+  "lags_forecast_ratio": 1,
+  "output_chunk_length": 1,
   "hidden_size": 32,
-  "lstm_layers": 2,
+  "lstm_layers": 1,
   "num_attention_heads": 2,
   "full_attention": true,
   "feed_forward": "GatedResidualNetwork",
@@ -17,8 +17,8 @@
   "force_reset": true,
   "save_checkpoints": true,
   "optimizer_kwargs": {"lr": 1e-3},
-  "use_past_covariates": true,
-  "use_future_covariates": true,
-  "use_static_covariates": true,
+  "use_past_covariates": false,
+  "use_future_covariates": false,
+  "use_static_covariates": false,
   "random_state": 0
 }
