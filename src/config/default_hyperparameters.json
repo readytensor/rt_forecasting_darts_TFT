@@ -9,7 +9,7 @@
   "feed_forward": "GatedResidualNetwork",
   "add_relative_index": true,
   "dropout": 0.0,
-  "n_epochs": 400,
+  "n_epochs": 300,
   "batch_size": 32,
   "early_stopping": true,
   "early_stopping_patience": 30,

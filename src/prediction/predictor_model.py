@@ -444,8 +444,6 @@ class Forecaster:
             data_schema=data_schema,
         )
 
-        print(targets)
-
         self.model.fit(
             targets,
             past_covariates=past_covariates,
